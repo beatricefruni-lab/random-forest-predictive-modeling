@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Forest vs CART Analysis | Beatrice Fruni</title>
+    <style>
+        :root {
+            --primary: #1e293b;
+            --secondary: #0f766e;
+            --accent: #2563eb;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #334155;
+            --border: #e2e8f0;
+            --code-bg: #1e1e1e;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--bg);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: #ffffff;
+            padding: 3rem 1.5rem;
+            text-align: center;
+            border-bottom: 4px solid var(--secondary);
+        }
+
+        header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2.2rem;
+            letter-spacing: -0.5px;
+        }
+
+        header p {
+            margin: 0;
+            color: #94a3b8;
+            font-size: 1.05rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        h2 {
+            color: var(--primary);
+            margin-top: 0;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            font-size: 1.4rem;
+        }
+
+        h3 {
+            color: var(--secondary);
+            font-size: 1.15rem;
+            margin-top: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: #f1f5f9;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .badge-success {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: #d4d4d4;
+            padding: 1.25rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.88rem;
+            font-family: "Courier New", Courier, monospace;
+        }
+
+        code {
+            font-family: "Courier New", Courier, monospace;
+            background: #f1f5f9;
+            padding: 0.15rem 0.35rem;
+            border-radius: 4px;
+            color: #b91c1c;
+            font-size: 0.9em;
+        }
+
+        pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .metric-box {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            padding: 1.25rem;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .metric-box .number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-top: 0.25rem;
+        }
+
+        .metric-box .label {
+            font-size: 0.85rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: #64748b;
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Ensemble Learning & Random Forest Modeling</h1>
+    <p>Empirical Comparison with CART & Applied Consumer Analytics in R | Beatrice Fruni</p>
+</header>
+
+<div class="container">
+
+    <!-- Overview -->
+    <div class="card">
+        <h2>1. Executive Summary & Research Background</h2>
+        <p>
+            Developed as part of my Bachelor's thesis at the <strong>University of Trento</strong> (supervised by Prof. Emanuele Taufer), this project assesses the mathematical architecture, variance reduction, and predictive accuracy of <strong>Leo Breiman's Random Forest algorithm</strong> compared against single <strong>Classification and Regression Trees (CART)</strong>.
+        </p>
+        <p>
+            While individual decision trees provide high interpretability, they are susceptible to high variance and overfitting. Random Forests resolve these limitations by introducing a dual-randomization mechanism:
+        </p>
+        <ul>
+            <li><strong>Bootstrap Aggregation (Bagging):</strong> Training multiple decision trees on random subsets with replacement.</li>
+            <li><strong>Random Subspace Method:</strong> Selecting a subset of features \(m \approx \sqrt{p}\) at each split to decorrelate individual trees.</li>
+        </ul>
+    </div>
+
+    <!-- Key Performance Comparison -->
+    <div class="card">
+        <h2>2. Empirical Benchmark: Boston Housing Dataset</h2>
+        <p>Models were trained on 400 observations and validated against an unseen test set (106 observations) to predict median home values (<code>medv</code>).</p>
+
+        <div class="metrics-grid">
+            <div class="metric-box">
+                <div class="label">Single Tree Test MSE</div>
+                <div class="number">40.43</div>
+            </div>
+            <div class="metric-box">
+                <div class="label">Optimized RF Test MSE</div>
+                <div class="number">16.25</div>
+            </div>
+            <div class="metric-box">
+                <div class="label">Error Reduction</div>
+                <div class="number badge-success" style="display:inline-block; font-size: 1.4rem; padding: 0.2rem 0.8rem;">-59.8%</div>
+            </div>
+            <div class="metric-box">
+                <div class="label">Variance Explained</div>
+                <div class="number">87.64%</div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Model Architecture</th>
+                    <th>Parameters</th>
+                    <th>Mean Squared Residuals (MSR)</th>
+                    <th>Test MSE</th>
+                    <th>% Variance Explained</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>CART Regression Tree</strong></td>
+                    <td>Single tree, pruning</td>
+                    <td>-</td>
+                    <td>40.43</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><strong>Baseline Random Forest</strong></td>
+                    <td>ntree = 500, mtry = 4</td>
+                    <td>10.17</td>
+                    <td>16.42</td>
+                    <td>87.27%</td>
+                </tr>
+                <tr>
+                    <td><strong>Optimized Random Forest</strong></td>
+                    <td>ntree = 500, mtry = 6</td>
+                    <td><strong>9.88</strong></td>
+                    <td><strong>16.25</strong></td>
+                    <td><strong>87.64%</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Hyperparameter Optimization -->
+    <div class="card">
+        <h2>3. Hyperparameter Tuning (\(mtry\) Search)</h2>
+        <p>
+            An iterative experiment was conducted across all potential predictor counts (\(mtry \in [1, 13]\)) to track Out-Of-Bag (OOB) error convergence alongside test set errors.
+        </p>
+        <pre><code># Excerpt: Iterative Tuning Loop in R
+oob_err  <- double(13)
+test_err <- double(13)
+
+for (m in 1:13) {
+  rf <- randomForest(medv ~ ., data = bh_train, mtry = m, ntree = 400)
+  oob_err[m]  <- rf$mse[400]
+  pred        <- predict(rf, bh_test)
+  test_err[m] <- mean((bh_test$medv - pred)^2)
+}</code></pre>
+        <p>
+            <strong>Findings:</strong> The Out-of-Bag error stabilized at \(mtry = 5\) (error = 9.40), while test error reached its lowest boundary at \(mtry = 6\) (error = 15.60). Increasing variables beyond this threshold elevated correlation among individual trees without adding predictive information.
+        </p>
+    </div>
+
+    <!-- Feature Importance -->
+    <div class="card">
+        <h2>4. Feature Importance Analysis (Node Purity)</h2>
+        <p>Using <code>IncNodePurity</code> (total decrease in residual sum of squares across all splits), the model identified the key quantitative drivers of the target variable:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Predictor</th>
+                    <th>Description</th>
+                    <th>IncNodePurity</th>
+                    <th>Impact Level</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>lstat</code></td>
+                    <td>% of lower status population</td>
+                    <td><strong>11,529.60</strong></td>
+                    <td><span class="badge">Primary Driver</span></td>
+                </tr>
+                <tr>
+                    <td><code>rm</code></td>
+                    <td>Average number of rooms per dwelling</td>
+                    <td><strong>9,720.02</strong></td>
+                    <td><span class="badge">Primary Driver</span></td>
+                </tr>
+                <tr>
+                    <td><code>crim</code></td>
+                    <td>Per capita crime rate</td>
+                    <td>1,837.71</td>
+                    <td>Secondary Driver</td>
+                </tr>
+                <tr>
+                    <td><code>dis</code></td>
+                    <td>Weighted distances to employment centres</td>
+                    <td>1,781.76</td>
+                    <td>Secondary Driver</td>
+                </tr>
+                <tr>
+                    <td><code>indus</code></td>
+                    <td>Proportion of non-retail business acres</td>
+                    <td>1,618.84</td>
+                    <td>Moderate</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Business & Marketing Application -->
+    <div class="card">
+        <h2>5. Commercial Application: Predictive Analytics in Digital Marketing</h2>
+        <p>
+            The project translates algorithmic ensembling into digital marketing, evaluating a high-dimensional consumer behavior dataset (50,000 observations):
+        </p>
+        <ul>
+            <li><strong>Behavioral Telemetry:</strong> Shopping cart addition frequency, browsing session recency, and promotion sensitivity.</li>
+            <li><strong>Objective:</strong> Predicting 7-day conversion and purchase volume.</li>
+            <li><strong>Outcome:</strong> The Random Forest classifier demonstrated superior precision over classical logistic regression benchmarks, successfully isolating 21,637 active buyers and proving its efficacy for customer segment targeting and ad spend optimization.</li>
+        </ul>
+    </div>
+
+</div>
+
+<footer>
+    <p>&copy; 2024 Beatrice Fruni | Portfolio Project Hosted on GitHub Pages</p>
+</footer>
+
+</body>
+</html>
